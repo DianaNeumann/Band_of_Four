@@ -28,7 +28,7 @@ DFS применяется в:
 void DFS(int v) {}
 ```
 
-# 2. Обход в ширину BFS
+# 2. [Обход в ширину BFS](https://neerc.ifmo.ru/wiki/index.php?title=%D0%9E%D0%B1%D1%85%D0%BE%D0%B4_%D0%B2_%D1%88%D0%B8%D1%80%D0%B8%D0%BD%D1%83)
 
 
 

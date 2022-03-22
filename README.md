@@ -89,7 +89,6 @@ bool* used;
 vector<int> f;
 int* comp;
  
- 
 void DFSfirst(int v) {
     used[v] = true;
     for (int i : graph[v]) {
@@ -98,18 +97,14 @@ void DFSfirst(int v) {
     }
     f.push_back(v);
 }
- 
 void DFSsecond(int v, int c_num) {
     used[v] = true;
     comp[v] = c_num;
     for (int i : inv_graph[v]) {
         if (!used[i])
             DFSsecond(i, c_num);
-    }
+    } 
 }
-
- 
-  
 ```
 ---
 

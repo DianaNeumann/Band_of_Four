@@ -81,8 +81,33 @@ BFS применяется в:
 - Полученные на 3-ем этапе деревья поиска в глубину будут являться компонентами сильной связности графа G.
 - Так как компоненты сильной связности G и H графа совпадают, то первый поиск в глубину для нахождения f[u] можно выполнить на графе G, а второй — на H.
 
-
-
+```
+vector<vector<int>> graph;
+vector<vector<int>> inv_graph;
+bool* used;
+ 
+vector<int> f;
+int* comp;
+ 
+ 
+void DFSfirst(int v) {
+    used[v] = true;
+    for (int i : graph[v]) {
+        if (!used[i])
+            DFSfirst(i);
+    }
+    f.push_back(v);
+}
+ 
+void DFSsecond(int v, int c_num) {
+    used[v] = true;
+    comp[v] = c_num;
+    for (int i : inv_graph[v]) {
+        if (!used[i])
+            DFSsecond(i, c_num);
+    }
+}
+```
 ---
 
 # 5. Поиск и восстановление всех видов циклов

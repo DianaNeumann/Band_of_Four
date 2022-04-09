@@ -178,8 +178,6 @@ void EulerDfs(std::vector<Vertex> & graph, std::vector<std::vector<Edge>> & matr
               std::stack<int> & stack, std::ostream & out) {
     if (stack.empty()) return;
     int v = stack.top();
-    out << v << std::endl;
-    stack.pop();
 
     for (auto u : graph[v].neighbours){
         if (matrix[v][u].color == 0){
@@ -189,6 +187,8 @@ void EulerDfs(std::vector<Vertex> & graph, std::vector<std::vector<Edge>> & matr
             EulerDfs(graph, matrix, stack, out);
         }
     }
+    out << v << std::endl;
+    stack.pop();
 }
 
 int main() {
@@ -211,7 +211,7 @@ int main() {
 
     int startVertex = 1;
     int counter = 0;
-    
+
     for (int i = 1; i < graph.size(); i++)
     {
         if (graph[i].neighbours.size() % 2 == 1){

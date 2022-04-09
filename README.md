@@ -115,6 +115,97 @@ void DFSsecond(int v, int c_num) {
 
 # 7. Поиск Эйлерова цикла
 
+Для не орграфа.
+```
+Критерий эйлеровости (существует эйлеров цикл):
+    1. Все вершины имели четную степень.
+    2. Все компоненты связности кроме, может быть одной, не содержали ребер.
+    
+Критерий полу-эйлеровости (существует эйлеров путь):
+    1. Количество вершин с нечетной степенью меньше или равно (?) двум.
+    2.  Все компоненты связности кроме, может быть одной, не содержат ребер.
+```
+Для орграфа.
+```
+Критерий эйлеровости (существует эйлеров цикл):
+    1. Входная степень любой вершины равна ее выходной степени.
+    2. Все компоненты слабой связности кроме, может быть одной, не содержат ребер.
+    
+Критерий полу-эйлеровости (существует эйлеров путь):
+    1. Входная степень любой вершины равна ее выходной степени, кроме двух вершин графа:
+        • для одной из которых deg(+) − deg(−) = 1
+        • а для другой deg(+) − deg(−) = −1
+    2. Все компоненты слабой связности кроме, может быть одной, не содержат ребер.
+```
+---
+Данный код протестирован для орграфа, но и с неориентированным графом должен (скорее всего) работать.
+Время: O(V + E)
+```
+#include <iostream>
+#include <stack>
+#include <vector>
+#include <fstream>
+
+using std::cout;
+using std::endl;
+
+// working only with directed graph
+
+struct Edge{
+    int color = 0;
+};
+
+struct Vertex{
+    std::vector<int> neighbours;
+};
+
+// todo
+// it might be worth printing vertices after stack is full
+void EulerDfs(std::vector<Vertex> & graph, std::vector<std::vector<Edge>> & matrix,
+              std::stack<int> & stack, std::ostream & out) {
+    if (stack.empty()) return;
+    int v = stack.top();
+    out << v << std::endl;
+    stack.pop();
+
+    for (auto u : graph[v].neighbours){
+        if (matrix[v][u].color == 0){
+            matrix[v][u].color = 1;
+            matrix[u][v].color = 1;
+            stack.push(u);
+            EulerDfs(graph, matrix, stack, out);
+        }
+    }
+}
+
+int main() {
+    std::ifstream fin("test.in");
+    std::ofstream fout("res.out");
+
+    int n, m;
+    fin >> n >> m;
+
+    std::vector<Vertex> graph (n + 1);
+    std::vector<std::vector<Edge>> matrix(n + 1, std::vector<Edge> (n + 1));
+
+    for (int i = 0; i < m; i++)
+    {
+        int x, y;
+        fin >> x >> y;
+        graph[x].neighbours.push_back(y);
+    }
+
+    std::stack<int> stack;
+    stack.push(1);
+
+    EulerDfs(graph, matrix, stack, fout);
+
+    return 0;
+}
+
+```
+---
+
 
 # 8. Нахождение компонент связности в неориентированном графе
 

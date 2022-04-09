@@ -164,8 +164,6 @@ void DFSsecond(int v, int c_num) {
 using std::cout;
 using std::endl;
 
-// working only with directed graph
-
 struct Edge{
     int color = 0;
 };
@@ -208,15 +206,33 @@ int main() {
         int x, y;
         fin >> x >> y;
         graph[x].neighbours.push_back(y);
+        graph[y].neighbours.push_back(x);
+    }
+
+    int startVertex = 1;
+    int counter = 0;
+    
+    for (int i = 1; i < graph.size(); i++)
+    {
+        if (graph[i].neighbours.size() % 2 == 1){
+            counter++;
+            startVertex = i;
+        }
+    }
+
+    if (counter != 0 and counter != 2){
+        fout << "Not an Eulerian/semi-Eulerian graph\n";
+        return 0;
     }
 
     std::stack<int> stack;
-    stack.push(1);
+    stack.push(startVertex);
 
     EulerDfs(graph, matrix, stack, fout);
 
     return 0;
 }
+
 
 ```
 ---

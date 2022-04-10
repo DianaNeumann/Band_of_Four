@@ -2,7 +2,8 @@
 
 # 1. [Обход в глубину DFS](https://neerc.ifmo.ru/wiki/index.php?title=%D0%9E%D0%B1%D1%85%D0%BE%D0%B4_%D0%B2_%D0%B3%D0%BB%D1%83%D0%B1%D0%B8%D0%BD%D1%83,_%D1%86%D0%B2%D0%B5%D1%82%D0%B0_%D0%B2%D0%B5%D1%80%D1%88%D0%B8%D0%BD)
 
-Общая идея алгоритма состоит в следующем: для каждой не пройденной вершины необходимо найти все не пройденные смежные вершины и повторить поиск для них
+Общая идея алгоритма состоит в следующем: для каждой не пройденной вершины необходимо найти все не пройденные смежные вершины
+    и повторить поиск для них
 ```
 1. Выбираем любую вершину из еще не пройденных, обозначим ее как u.
 2. Запускаем процедуру dfs(u)
@@ -70,41 +71,42 @@ BFS применяется в:
 
 # 4. Конденсация графа
 
-Компоненты сильной связности в графе G можно найти с помощью поиска в глубину в 3 этапа:
+Компоненты сильной связности в орграфе G можно найти с помощью поиска в глубину в 3 этапа:
 
 ```
-    1. Построить граф H с обратными (инвертированными) рёбрами
-    2. Выполнить в H поиск в глубину и найти f[u] — время окончания обработки вершины u
-    3. Выполнить поиск в глубину в G, перебирая вершины во внешнем цикле в порядке убывания f[u]
+1. Запустить топсорт (DFS по ИСХОДЯЩИМ РЁБРАМ). В графе могут быть циклы, поэтому граф не совсем отсортируется, но это нужно для
+    гарантии того, что вершины одной компоненты будут левее вершин другой. Добавить все отсортированные вершины в массив/стек.
+2. Создать массив компонент размера n и счётчик компонент.
+3. Для каждой вершины в отсортированном массиве/стеке:
+    • Если ещё не найдена её компонента, то запускаем DFS по ВХОДЯЩИМ РЁБРАМ и всему, что он обойдет присваиваем значение счетчика
+    • Инеркментируем счетчик
 
 ```
-- Полученные на 3-ем этапе деревья поиска в глубину будут являться компонентами сильной связности графа G.
-- Так как компоненты сильной связности G и H графа совпадают, то первый поиск в глубину для нахождения f[u] можно выполнить на графе G, а второй — на H.
 
 ```
-vector<vector<int>> graph;
-vector<vector<int>> inv_graph;
-bool* used;
- 
-vector<int> f;
-int* comp;
- 
-void DFSfirst(int v) {
-    used[v] = true;
-    for (int i : graph[v]) {
-        if (!used[i])
-            DFSfirst(i);
-    }
-    f.push_back(v);
-}
-void DFSsecond(int v, int c_num) {
-    used[v] = true;
-    comp[v] = c_num;
-    for (int i : inv_graph[v]) {
-        if (!used[i])
-            DFSsecond(i, c_num);
-    } 
-}
+void outDFS(u):
+    graph[u].color = 1
+    for v in graph[u].out:
+        if graph[v].color == 1:
+            outDFS(v)
+    stack.push(u)
+    
+void inDFS(u):
+    components[u] = counter
+    for v : graph[u].in:
+        if components[v] == 0:
+            inDFS(v)
+            
+// после запуска outDFS (топсорта)
+
+int condense(graph):
+    counter = 1
+    for u in stack:
+        if components[u] == 0:
+            counter++
+            inDFS(u)
+    return counter // возвращает количество компонент
+    
 ```
 ---
 
@@ -114,14 +116,16 @@ void DFSsecond(int v, int c_num) {
 ```
 • Обходим граф. Каждую вершину, в которой мы не были, кладем в стэк и запускаем DFS из неё.
 • Если DFS пытается пойти в серую вершины - цикл найден.
-• Когда DFS нашел вершину, которая лежит на цикле (Un), последовательно вынимаем все вершины из стэка (U1...Un-1, пока не встретим найденную (Un) еще раз.
+• Когда DFS нашел вершину, которая лежит на цикле (Un), последовательно вынимаем все вершины из стэка (U1...Un-1, пока не 
+    встретим найденную (Un) еще раз.
 • Все вынутые из стека вершины будут являться циклом.
 
 ```
 
 ### Неориетированный граф
 ```
-• Тут тоже самое, но мы должно проверять, что для рассатриваемой нами вершины ребро UV не является ребром, по которому мы пришли в эту вершину 
+• Тут тоже самое, но мы должно проверять, что для рассатриваемой нами вершины ребро UV не является ребром, по которому
+    мы пришли в эту вершину 
 
 ```
 
@@ -153,87 +157,35 @@ void DFSsecond(int v, int c_num) {
     2. Все компоненты слабой связности кроме, может быть одной, не содержат ребер.
 ```
 
-Данный код протестирован для орграфа, но и с неориентированным графом должен (скорее всего) работать.
 Время: O(V + E)
 ```
-#include <iostream>
-#include <stack>
-#include <vector>
-#include <fstream>
+1. Проверяем критерии и заодно находим стартовую вершину с нечетной степенью (если будет 2 нечетных).
+2. Кладём в стек стартовую вершину.
+3. Запускаем модифицированный DFS:
+    • Смотрим на верхнюю вершину u стека (пока не удаляем её)
+    • Проходим по смежным вершинам (for v in u.смежные) 
+    • Если ребро uv не помечено, помечаем, пушим v в стеку и запускаем DFS
+    • После того как прошлись по всем смежным, выводим u и удаляем её из стека
 
-using std::cout;
-using std::endl;
+```
+```
+// после проверки критериев запускаем DFS от стартовой вершины
+// matrix - матрица смежности
 
-struct Edge{
-    int color = 0;
-};
+void DFS():
+    if stack.empty():
+        return;
+    int u = stack.top();
+    
+    for v in u.neighbours:
+        if (matrix[u][v] == 0):
+            matrix[u][v] = 1;
+            matrix[v][u] = 1;  // для не орграфа надо помечать и симметричное относительно главной диагонали матрицы
+            stack.push(v);
+            DFS();
 
-struct Vertex{
-    std::vector<int> neighbours;
-};
-
-// todo
-// it might be worth printing vertices after stack is full
-void EulerDfs(std::vector<Vertex> & graph, std::vector<std::vector<Edge>> & matrix,
-              std::stack<int> & stack, std::ostream & out) {
-    if (stack.empty()) return;
-    int v = stack.top();
-
-    for (auto u : graph[v].neighbours){
-        if (matrix[v][u].color == 0){
-            matrix[v][u].color = 1;
-            matrix[u][v].color = 1;
-            stack.push(u);
-            EulerDfs(graph, matrix, stack, out);
-        }
-    }
-    out << v << std::endl;
+    print(v);
     stack.pop();
-}
-
-int main() {
-    std::ifstream fin("test.in");
-    std::ofstream fout("res.out");
-
-    int n, m;
-    fin >> n >> m;
-
-    std::vector<Vertex> graph (n + 1);
-    std::vector<std::vector<Edge>> matrix(n + 1, std::vector<Edge> (n + 1));
-
-    for (int i = 0; i < m; i++)
-    {
-        int x, y;
-        fin >> x >> y;
-        graph[x].neighbours.push_back(y);
-        graph[y].neighbours.push_back(x);
-    }
-
-    int startVertex = 1;
-    int counter = 0;
-
-    for (int i = 1; i < graph.size(); i++)
-    {
-        if (graph[i].neighbours.size() % 2 == 1){
-            counter++;
-            startVertex = i;
-        }
-    }
-
-    if (counter != 0 and counter != 2){
-        fout << "Not an Eulerian/semi-Eulerian graph\n";
-        return 0;
-    }
-
-    std::stack<int> stack;
-    stack.push(startVertex);
-
-    EulerDfs(graph, matrix, stack, fout);
-
-    return 0;
-}
-
-
 ```
 ---
 
@@ -256,67 +208,26 @@ int main() {
 # 9. [Нахождение компонент сильной связности](https://neerc.ifmo.ru/wiki/index.php?title=%D0%98%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%B3%D0%BB%D1%83%D0%B1%D0%B8%D0%BD%D1%83_%D0%B4%D0%BB%D1%8F_%D0%BF%D0%BE%D0%B8%D1%81%D0%BA%D0%B0_%D0%BA%D0%BE%D0%BC%D0%BF%D0%BE%D0%BD%D0%B5%D0%BD%D1%82_%D1%81%D0%B8%D0%BB%D1%8C%D0%BD%D0%BE%D0%B9_%D1%81%D0%B2%D1%8F%D0%B7%D0%BD%D0%BE%D1%81%D1%82%D0%B8)
 
 
-# 10. Алгоритмы Краскала
+# 10. Алгоритм Краскала
 
 ```
-
-1. Сортировать ребра по неубыванию по их весам.
-2. Далее с помощью вызовов функции make_set()мы каждую вершину можем поместить в свое собственное дерево, то есть, создаем некоторое множество подграфов.
-3. Итерируемся по всем ребрам в отсортированном порядке и смотрим, принадлежат ли инцидентные вершины текущего ребра разным подграфам с помощью функции find_set() или нет, если оба конца лежат в разных компонентах, то объединяем два разных подграфа в один с помощью функции union_sets().
+Для реализации потребуется Система Непересекающихся Множеств (СНМ), у которой есть 2 основные функции:
+    • get(v) - получить представителя вершины v (представителя множества, в котором находится v)
+    • union(u, v) - объединить множества, в которых находятся вершины u и v.
+    
+Алгоритм:
+1. В начале у нас n множеств: каждое состоит из одной вершины, которая является представителем.
+2. Отсортируем ребра по неубыванию по их весам.
+3. Запускаем for для каждого ребра uv из отсортированного массива ребер:
+    • Если вершины u и v этого ребра в разных множествах, то объединяем их множества и прибавляем вес uv в ответ.
 
 ```
 ```
-vector<int> parent, rank;
-
-void make_set(int v) {
-    parent[v] = v;
-    rank[v] = 0;
-}
-
-int find_set(int v) {
-    if (v == parent[v])
-        return v;
-    return parent[v] = find_set(parent[v]);
-}
-
-void union_sets(int a, int b) {
-    a = find_set(a);
-    b = find_set(b);
-    if (a != b) {
-        if (rank[a] < rank[b])
-            swap(a, b);
-        parent[b] = a;
-        if (rank[a] == rank[b])
-            rank[a]++;
-    }
-}
-
-struct Edge {
-    int u, v, weight;
-    bool operator<(Edge const& other) {
-        return weight < other.weight;
-    }
-};
-
-int n;
-vector<Edge> edges;
-
-int cost = 0;
-vector<Edge> result;
-parent.resize(n);
-rank.resize(n);
-for (int i = 0; i < n; i++)
-    make_set(i);
-
-sort(edges.begin(), edges.end());
-
-for (Edge e : edges) {
-    if (find_set(e.u) != find_set(e.v)) {
-        cost += e.weight;
-        result.push_back(e);
-        union_sets(e.u, e.v);
-    }
-}
+sort(edges)
+for uv in edges:
+    if get(u) != get(v):
+        result += uv.weight
+        union(u, v)
 ```
 
 Время: O(mlogm)

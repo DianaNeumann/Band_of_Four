@@ -259,6 +259,45 @@ for uv in edges:
 # 11. Алгоритм Прима
 
 # 12. Алгоритм Беллмана-Форда
+```
+Динамика.
+```
+
+1) втупую:
+```
+dist = [k][n] // матрица k на n заполненная бесконечностями
+dist[0][start] = 0
+
+for k in range(1, n):
+    for v in range(n):
+        for uv in Edges[v]:
+            dist[k][v] = min(dist[k - 1][v], dist[k - 1][u] + uv.weight)
+
+```
+2) экономим память:
+```
+dist = [inf for i in range(n)]
+dist[start] = 0
+
+for k in range(n):
+    for uv in Edges:
+        dist[v] = min(dist[v], dist[u] + uv.weight)
+
+
+```
+3) по-хитрому:
+```
+dist = [inf for i in range(n)]
+dist[start] = 0
+
+while (!ok):
+    ok = true
+    for v in Vertices:
+        for uv in Edges[v]:
+            if dist[u] + uv.weight < dist[v]:
+                dist[v] = dist[u] + uv.weight
+                ok = false
+```
 
 # 13. Алгоритм DAG - кратчайший путь в ациклическом орграфе (дпшка)
 

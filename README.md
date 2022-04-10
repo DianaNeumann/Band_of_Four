@@ -76,22 +76,23 @@ BFS применяется в:
 ```
 1. Запустить топсорт (DFS по ИСХОДЯЩИМ РЁБРАМ). В графе могут быть циклы, поэтому граф не совсем отсортируется, но это нужно для
     гарантии того, что вершины одной компоненты будут левее вершин другой. Добавить все отсортированные вершины в массив/стек.
-2. Создать массив компонент размера n и счётчик компонент.
+2. Создать массив компонент components размера n и счётчик компонент counter.
 3. Для каждой вершины в отсортированном массиве/стеке:
     • Если ещё не найдена её компонента, то запускаем DFS по ВХОДЯЩИМ РЁБРАМ и всему, что он обойдет присваиваем значение счетчика
     • Инеркментируем счетчик
+4. В реузльтате получим, что components[i] - это номер компоненты, которой принадлежит i-я вершина.
 
 ```
 
 ```
-void outDFS(u):
+void outDFS(u): // по ИСХОДЯЩИМ
     graph[u].color = 1
     for v in graph[u].out:
         if graph[v].color == 1:
             outDFS(v)
     stack.push(u)
     
-void inDFS(u):
+void inDFS(u): // по ВХОДЯЩИМ
     components[u] = counter
     for v : graph[u].in:
         if components[v] == 0:
@@ -105,7 +106,9 @@ int condense(graph):
         if components[u] == 0:
             counter++
             inDFS(u)
-    return counter // возвращает количество компонент
+    return counter // возвращает количество компонент сильной связности
+    
+// если хочется, можно объединить все вершины для каждой из компонент в отдельные списки
     
 ```
 ---
@@ -203,9 +206,26 @@ void DFS():
 
 ```
 
+```
+void DFS(u):
+    u.mark = true
+    components[u] = counter
+    for v in u.neighbours:
+        if (v.mark == false):
+            DFS(v)
+
+counter = 0
+for u in graph:
+    if u.mark == false:
+        counter++
+        DFS(u)
+```
+
 ---
 
 # 9. [Нахождение компонент сильной связности](https://neerc.ifmo.ru/wiki/index.php?title=%D0%98%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B0_%D0%B2_%D0%B3%D0%BB%D1%83%D0%B1%D0%B8%D0%BD%D1%83_%D0%B4%D0%BB%D1%8F_%D0%BF%D0%BE%D0%B8%D1%81%D0%BA%D0%B0_%D0%BA%D0%BE%D0%BC%D0%BF%D0%BE%D0%BD%D0%B5%D0%BD%D1%82_%D1%81%D0%B8%D0%BB%D1%8C%D0%BD%D0%BE%D0%B9_%D1%81%D0%B2%D1%8F%D0%B7%D0%BD%D0%BE%D1%81%D1%82%D0%B8)
+
+[Также как и в конденсации графа](https://github.com/DianaNeumann/Band_of_Four#4-%D0%BA%D0%BE%D0%BD%D0%B4%D0%B5%D0%BD%D1%81%D0%B0%D1%86%D0%B8%D1%8F-%D0%B3%D1%80%D0%B0%D1%84%D0%B0)
 
 
 # 10. Алгоритм Краскала
